@@ -108,7 +108,10 @@ class ISIN(str):
         Raises:
             PydanticCustomError: If the ISIN is not valid.
         """
-        value = __input_value.upper()
+        # Only ASCII input is uppercased: `str.upper()` also maps characters such as U+017F to 'S',
+        # which would let a non-ASCII character pass as a letter. Anything else is left as is
+        # and rejected by `validate_isin_format`.
+        value = __input_value.upper() if __input_value.isascii() else __input_value
         cls.validate_isin_format(value)
         return cls(value)
 

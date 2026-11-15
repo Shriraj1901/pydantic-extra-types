@@ -124,3 +124,16 @@ def test_surrounding_whitespace_is_ignored(country_type, value: str, expected: s
         made_in: country_type
 
     assert Product(made_in=value).made_in == expected
+
+
+@pytest.mark.parametrize('made_in', ['\u017fE', '\u0131T'])
+def test_alpha2_rejects_non_ascii_letters_that_uppercase_to_ascii(made_in: str, ProductAlpha2):
+    # U+017F.upper() is 'S' and U+0131.upper() is 'I', so these would otherwise be accepted as 'SE' and 'IT'.
+    with pytest.raises(ValidationError, match='country_alpha2'):
+        ProductAlpha2(made_in=made_in)
+
+
+@pytest.mark.parametrize('made_in', ['U\u017fA', '\u0131TA'])
+def test_alpha3_rejects_non_ascii_letters_that_uppercase_to_ascii(made_in: str, ProductAlpha3):
+    with pytest.raises(ValidationError, match='country_alpha3'):
+        ProductAlpha3(made_in=made_in)

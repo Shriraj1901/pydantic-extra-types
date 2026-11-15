@@ -350,3 +350,18 @@ def test_color_misplaced_decimal_point_fail(color):
     with pytest.raises(PydanticCustomError) as exc_info:
         Color(color)
     assert exc_info.value.type == 'color_error'
+
+
+@pytest.mark.parametrize('color', ['blac\u212a', '\u212ahaki', 'BLAC\u212a'])
+def test_color_non_ascii_letters_that_lowercase_to_ascii_fail(color):
+    # The Kelvin sign (U+212A) lowercases to 'k', so these would otherwise be read as 'black' and 'khaki'.
+    with pytest.raises(PydanticCustomError) as exc_info:
+        Color(color)
+    assert exc_info.value.type == 'color_error'
+
+
+def test_color_ascii_uppercase_still_accepted():
+    assert Color('BLACK').as_rgb_tuple() == (0, 0, 0)
+    assert Color('  Khaki ').as_rgb_tuple() == (240, 230, 140)
+    assert Color('RGB(1, 2, 3)').as_rgb_tuple() == (1, 2, 3)
+    assert Color('#FFF').as_hex() == '#fff'

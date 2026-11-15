@@ -71,3 +71,12 @@ def test_forbidden_everyday(forbidden_currency):
         ),
     ):
         CurrencyCheckingModel(currency=forbidden_currency)
+
+
+@pytest.mark.parametrize('currency', ['\u017fGD', '\u0131DR'])
+def test_non_ascii_letters_that_uppercase_to_ascii_are_rejected(currency: str):
+    # U+017F.upper() is 'S' and U+0131.upper() is 'I', so these would otherwise read as SGD and IDR.
+    with pytest.raises(ValidationError, match='ISO4217'):
+        ISO4217CheckingModel(currency=currency)
+    with pytest.raises(ValidationError, match='InvalidCurrency'):
+        CurrencyCheckingModel(currency=currency)

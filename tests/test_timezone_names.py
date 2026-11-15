@@ -216,3 +216,9 @@ def test_timezone_name_slots():
     tz = TimeZoneName('America/New_York')
     with pytest.raises(AttributeError):
         tz.new_attribute = 'test'
+
+
+def test_non_strict_rejects_non_ascii_letters_that_uppercase_to_ascii():
+    # U+017F.upper() is 'S', so this would otherwise be accepted as 'America/Sao_Paulo'.
+    with pytest.raises(ValidationError, match='Invalid timezone name'):
+        NonStrictTzName(timezone_name='America/\u017fao_Paulo')

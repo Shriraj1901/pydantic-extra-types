@@ -37,7 +37,11 @@ class DomainStr(str):
         if not isinstance(v, str):
             raise PydanticCustomError('domain_type', 'Value must be a string')
 
-        v = v.strip().lower()
+        v = v.strip()
+        # Only ASCII input is lowercased: `str.lower()` also maps the Kelvin sign (U+212A) to 'k',
+        # which would let a non-ASCII character pass as a letter.
+        if v.isascii():
+            v = v.lower()
         if len(v) < 1 or len(v) > 253:
             raise PydanticCustomError('domain_length', 'Domain must be between 1 and 253 characters')
 

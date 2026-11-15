@@ -59,6 +59,8 @@ r_rgb_v4_style = rf'\s*rgba?\(\s*{_r_255}\s+{_r_255}\s+{_r_255}(?:\s*/\s*{_r_alp
 # CSS4 HSL examples: hsl(270 60% 50%), hsl(270 60% 50% / 0.5), hsl(270 60% 50% / 50%), hsla(270 60% 50% / 50%)
 r_hsl_v4_style = rf'\s*hsla?\(\s*{_r_h}\s+{_r_sl}\s+{_r_sl}(?:\s*/\s*{_r_alpha})?\s*\)\s*'
 
+_ASCII_LOWER = str.maketrans('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')
+
 # colors where the two hex characters are the same, if all colors match this the short version of hex colors can be used
 repeat_colors = {int(c * 2, 16) for c in '0123456789abcdef'}
 rads = 2 * math.pi
@@ -302,8 +304,10 @@ def parse_str(value: str) -> RGBA:
     Raises:
         ValueError: If the input string cannot be parsed to an RGBA tuple.
     """
-    # surrounding whitespace is allowed, as in the hex and functional formats
-    value_lower = value.strip().lower()
+    # surrounding whitespace is allowed, as in the hex and functional formats.
+    # Only ASCII letters are lowercased: `str.lower()` also maps the Kelvin sign (U+212A) to 'k',
+    # which would let "blac" + U+212A pass as 'black'.
+    value_lower = value.strip().translate(_ASCII_LOWER)
     if value_lower in COLORS_BY_NAME:
         r, g, b = COLORS_BY_NAME[value_lower]
         return ints_to_rgba(r, g, b, None)

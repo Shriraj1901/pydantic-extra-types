@@ -124,3 +124,9 @@ def test_surrounding_whitespace_is_ignored(language_type, value: str, expected: 
         audio_lang: language_type
 
     assert Movie(audio_lang=value).audio_lang == expected
+
+
+def test_alpha2_rejects_non_ascii_letters_that_lowercase_to_ascii(MovieAlpha2):
+    # The Kelvin sign (U+212A) lowercases to 'k', so this would otherwise be accepted as 'ko'.
+    with pytest.raises(ValidationError, match='language_alpha2'):
+        MovieAlpha2(audio_lang='\u212ao')

@@ -165,3 +165,15 @@ def test_iban_rejects_non_ascii_digits(iban: str) -> None:
 )
 def test_valid_iban_newly_supported_countries(iban: str) -> None:
     assert BankAccount(iban=iban).iban == iban
+
+
+@pytest.mark.parametrize(
+    'iban',
+    [
+        'GB82WE\u017fT12345698765432',  # U+017F.upper() is 'S'
+        '\u0131T60X0542811101000000123456',  # U+0131.upper() is 'I'
+    ],
+)
+def test_iban_rejects_non_ascii_letters_that_uppercase_to_ascii(iban: str) -> None:
+    with pytest.raises(ValidationError, match='iban_invalid'):
+        BankAccount(iban=iban)

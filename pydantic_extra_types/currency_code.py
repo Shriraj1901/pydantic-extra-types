@@ -67,7 +67,10 @@ class ISO4217(str):
         Raises:
             PydanticCustomError: If the ISO 4217 currency code is not valid.
         """
-        currency_code = currency_code.upper()
+        # Only ASCII input is uppercased: `str.upper()` also maps characters such as U+017F to 'S',
+        # which would let a non-ASCII character pass as a letter.
+        if currency_code.isascii():
+            currency_code = currency_code.upper()
         if currency_code not in cls.allowed_currencies:
             raise PydanticCustomError(
                 'ISO4217', 'Invalid ISO 4217 currency code. See https://en.wikipedia.org/wiki/ISO_4217'
@@ -129,7 +132,8 @@ class Currency(str):
         Raises:
             PydanticCustomError: If the ISO 4217 currency code is not valid or is bond, precious metal or testing code.
         """
-        currency_symbol = currency_symbol.upper()
+        if currency_symbol.isascii():
+            currency_symbol = currency_symbol.upper()
         if currency_symbol not in cls.allowed_currencies:
             raise PydanticCustomError(
                 'InvalidCurrency',

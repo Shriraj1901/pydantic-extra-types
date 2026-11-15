@@ -96,3 +96,10 @@ def test_domainstr_invalid():
         assert False, 'Expected ValidationError'
     except ValidationError:
         pass
+
+
+@pytest.mark.parametrize('domain', ['\u212aelvin.com', 'example.\u212ar'])
+def test_domain_rejects_non_ascii_letters_that_lowercase_to_ascii(domain: str):
+    # The Kelvin sign (U+212A) lowercases to the ASCII letter 'k'.
+    with pytest.raises(ValidationError, match='Invalid domain format'):
+        MyModel(domain=domain)
